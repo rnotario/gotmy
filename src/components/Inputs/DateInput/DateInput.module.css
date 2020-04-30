@@ -1,0 +1,53 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  align-items: center;
+  border: 1px solid #dcdcdc;
+  border-radius: 5rem;
+
+  display: flex;
+  padding: 4.5px;
+}
+
+.label {
+  color: #acacac;
+  margin-bottom: 0.2rem;
+}
+
+.input {
+  border: none;
+  margin-left: 5px;
+  outline: none;
+}
+
+.calendar_icon {
+  align-items: center;
+  background-color: rgb(255, 90, 96);
+  border-radius: 5rem;
+  display: flex;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+
+.calendar_icon_image {
+  width: 16px;
+  height: 16px;
+}
+
+.plain {
+  border: none;
+  padding-left: 12px;
+  outline: none;
+  width: 100px;
+}
+
+[type="date"]::-webkit-inner-spin-button {
+  display: none;
+}
+[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}

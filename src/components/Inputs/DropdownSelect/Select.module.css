@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.select {
+    border: 1px solid #dcdcdc;
+    border-radius: 5rem;
+    outline: none;
+    padding: 12px;
+    width: 100%;
+}
+
+.label {
+    color: #acacac;
+    margin-bottom: 0.2rem;
+}

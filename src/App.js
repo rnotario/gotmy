@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
+
+import LoginPage from "./pages/LoginPage/LoginPage";
+
+import "./App.css";
+import RegistrationPage from "./pages/RegistrationPage/RegistrationPage";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
+import ProfilePageEdit from "./pages/ProfilePageEdit/ProfilePageEdit";
+
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        <Route path="/" exact component={LoginPage} />
+        <Route path="/login" exact component={LoginPage} />
+        <Route path="/register" exact component={RegistrationPage} />
+        <Route path="/profile" exact component={ProfilePage} />
+        <Route path="/profile/edit" exact component={ProfilePageEdit} />
+      </Router>
     </div>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  user: state.user,
+});
+
+export default connect(mapStateToProps, null)(App);
