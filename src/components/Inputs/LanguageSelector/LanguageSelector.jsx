@@ -7,25 +7,25 @@ import { Row } from "../../Flex/Row";
 import AutoSuggest from "react-autosuggest";
 // import theme from "react-autosuggest/"
 
-import theme from "./Autocomplete.module.css";
+import styles from "./Autocomplete.module.css";
 
 export default class LanguageSelector extends Component {
   constructor(props) {
     super(props);
     this.state = {
       languages: [],
-      userLanguages: this.props.value,
+      userLanguages: this.props.value || [],
       suggestions: [],
-      value: ""
+      value: "",
     };
   }
-  
+
   componentWillReceiveProps = (nextProps) => {
     this.setState((prevState) => {
       return {
         ...prevState,
-        userLanguages: nextProps.value,
-        languages: nextProps.languages
+        userLanguages: nextProps.value || [],
+        languages: nextProps.languages,
       };
     });
   };
@@ -33,41 +33,44 @@ export default class LanguageSelector extends Component {
   getLanguageItems() {
     return this.state.languages
       .filter((language) => {
-        return this.state.userLanguages.includes(language.lang_ide);
+        return (
+          this.state.userLanguages &&
+          this.state.userLanguages.includes(language.lang_ide)
+        );
       })
       .map((language) => {
         return (
           <LanguageItem
             language={language}
-            editable={true}
+            editable={this.props.editable}
             onDelete={this.props.onDelete}
           />
         );
       });
   }
 
-  getSuggestions = value => {
+  getSuggestions = (value) => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
 
-    return inputLength === 0 ? [] : this.props.languages.filter(lang => {
-      return !this.state.userLanguages.includes(lang.lang_ide) && lang.lang_description.toLowerCase().slice(0, inputLength) === inputValue
-    }
-    );
+    return inputLength === 0
+      ? []
+      : this.props.languages.filter((lang) => {
+          return (
+            !this.state.userLanguages.includes(lang.lang_ide) &&
+            lang.lang_description.toLowerCase().slice(0, inputLength) ===
+              inputValue
+          );
+        });
   };
 
   // When suggestion is clicked, Autosuggest needs to populate the input
-// based on the clicked suggestion. Teach Autosuggest how to calculate the
-// input value for every given suggestion.
- getSuggestionValue = suggestion => suggestion.lang_description;
+  // based on the clicked suggestion. Teach Autosuggest how to calculate the
+  // input value for every given suggestion.
+  getSuggestionValue = (suggestion) => suggestion.lang_description;
 
-// Use your imagination to render suggestions.
- renderSuggestion = suggestion => (
-  <span>
-    {suggestion.lang_description}
-  </span>
-);
-
+  // Use your imagination to render suggestions.
+  renderSuggestion = (suggestion) => <span>{suggestion.lang_description}</span>;
 
   handleDelete = (clickedLanguage) => {
     this.props.onDelete(clickedLanguage);
@@ -75,27 +78,30 @@ export default class LanguageSelector extends Component {
 
   onChange = (event, { newValue }) => {
     this.setState({
-      value: newValue
+      value: newValue,
     });
   };
 
   onSuggestionsFetchRequested = ({ value, reason }) => {
     this.setState({
-      suggestions: this.getSuggestions(value)
+      suggestions: this.getSuggestions(value),
     });
   };
 
-  onSuggestionSelected = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
+  onSuggestionSelected = (
+    event,
+    { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }
+  ) => {
     this.props.onAdd(suggestion);
     this.setState({
-      value: ""
-    })
-  }
+      value: "",
+    });
+  };
 
   // Autosuggest will call this function every time you need to clear suggestions.
   onSuggestionsClearRequested = () => {
     this.setState({
-      suggestions: []
+      suggestions: [],
     });
   };
 
@@ -104,14 +110,14 @@ export default class LanguageSelector extends Component {
 
     // Autosuggest will pass through all these props to the input.
     const inputProps = {
-      placeholder: 'Type a language',
+      placeholder: "Type a language",
       value,
-      onChange: this.onChange
+      onChange: this.onChange,
     };
 
     return (
       <div>
-        <label className={theme.label} htmlFor={this.props.name}>
+        <label className={styles.label} htmlFor={this.props.name}>
           {this.props.label}
         </label>
         <Card
@@ -119,18 +125,19 @@ export default class LanguageSelector extends Component {
         >
           <Row>
             {this.getLanguageItems()}
-
+            {this.props.editable && (
               <AutoSuggest
-              theme={theme}
-              suggestions={suggestions}
-              onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-              onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-              onSuggestionSelected={this.onSuggestionSelected}
-              getSuggestionValue={this.getSuggestionValue}
-              renderSuggestion={this.renderSuggestion}
-              inputProps={inputProps}
-            />
-            </Row>
+                theme={styles}
+                suggestions={suggestions}
+                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                onSuggestionSelected={this.onSuggestionSelected}
+                getSuggestionValue={this.getSuggestionValue}
+                renderSuggestion={this.renderSuggestion}
+                inputProps={inputProps}
+              />
+            )}
+          </Row>
         </Card>
       </div>
     );
@@ -139,4 +146,5 @@ export default class LanguageSelector extends Component {
 
 LanguageSelector.defaultProps = {
   value: [],
+  editable: true,
 };

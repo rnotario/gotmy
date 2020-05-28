@@ -9,6 +9,7 @@ const TextArea = (props) => {
         {props.label}
       </label>
       <textarea
+        disabled={!props.editable}
         className={styles.input}
         name={props.name}
         id={props.name}
@@ -19,5 +20,9 @@ const TextArea = (props) => {
     </div>
   );
 };
+
+TextArea.defaultProps = {
+  editable: true
+}
 
 export default TextArea;

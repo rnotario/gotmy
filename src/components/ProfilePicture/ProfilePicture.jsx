@@ -28,9 +28,14 @@ const ProfilePicture = (props) => {
         style={{ display: "none" }}
         id="file-upload"
         type="file"
+        disabled={!props.editable}
       />
     </div>
   );
 };
+
+ProfilePicture.defaultProps = {
+  editable: true
+}
 
 export default ProfilePicture;

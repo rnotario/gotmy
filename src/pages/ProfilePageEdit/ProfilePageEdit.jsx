@@ -1,10 +1,16 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
-import ReactTags from "react-tag-autocomplete"
+import { withRouter } from "react-router-dom";
 
 import { Row } from "../../components/Flex/Row";
 import { Column } from "../../components/Flex/Column";
-import { Input, CustomSelect, DateInput, TextArea, LanguageSelector } from "../../components/Inputs";
+import {
+  Input,
+  CustomSelect,
+  DateInput,
+  TextArea,
+  LanguageSelector,
+} from "../../components/Inputs";
 
 import Button from "../../components/Button/Button";
 import Card from "../../components/Card/Card";
@@ -21,11 +27,12 @@ class ProfilePageEdit extends Component {
     super(props);
     this.state = {
       ...props.user,
+      fullName: "",
     };
   }
 
   formatCity(data) {
-    if (typeof data === "string") {
+    if (typeof data === "string" && data !== "") {
       return JSON.parse(data).city;
     } else if (typeof data === "object") {
       return data.city;
@@ -45,7 +52,16 @@ class ProfilePageEdit extends Component {
     this.setState({
       user_name: firstName,
       user_lastname: lastName.join(" "),
+      fullName: ev.target.value,
     });
+  };
+
+  getFullName = (user) => {
+    if (user.user_lastname) {
+      return `${user.user_name} ${user.user_lastname}`;
+    } else {
+      return user.user_name;
+    }
   };
 
   handleDateChange = (date) => {
@@ -80,34 +96,38 @@ class ProfilePageEdit extends Component {
   };
 
   handleLanguageAddition = (langTag) => {
-    let newLang = this.props.languages.find(lang => lang.lang_ide === langTag.id);
-    debugger;
+    let newLang = this.props.languages.find(
+      (lang) => lang.lang_ide === langTag.id
+    );
     this.setState((prevState, props) => ({
-      user_languages: [...prevState.user_languages, newLang.lang_ide]
+      user_languages: [...prevState.user_languages, newLang.lang_ide],
     }));
   };
 
   handleLanguageDelete = (language) => {
     this.setState((prevState, props) => ({
-      user_languages: prevState.user_languages.filter(lang => lang !== language.lang_ide)
+      user_languages: prevState.user_languages.filter(
+        (lang) => lang !== language.lang_ide
+      ),
     }));
   };
 
   handleLanguageAddition = (language) => {
-    debugger;
-    this.setState((prevState, props) => ({
-      user_languages: [...prevState.user_languages, language.lang_ide]
-    }));
-  };
-
-  handleCancel = () => {
-    this.setState({
-      ...this.props.user,
+    // user_languages can be null (in case of a new user)
+    this.setState((prevState, props) => {
+      let userLanguages = prevState.user_languages || [];
+      return {
+        user_languages: [...userLanguages, language.lang_ide],
+      };
     });
   };
 
+  handleCancel = () => {
+    this.props.history.push("/profile");
+  };
+
   handleSave = () => {
-    this.props.update(this.formatProfileData());
+    this.props.update(this.formatProfileData(), this.props.history);
   };
 
   formatProfileData = () => {
@@ -125,35 +145,39 @@ class ProfilePageEdit extends Component {
 
   componentDidMount() {
     this.props.getMyProfile();
-    this.props.getLanguages()
+    this.props.getLanguages();
   }
 
   componentWillReceiveProps = (nextProps) => {
     this.setState({
       ...nextProps.user,
+      fullName: this.getFullName(nextProps.user || {}),
     });
   };
 
   getActiveLanguages = () => {
-    return this.props.languages.filter(lang => {
-      return this.state.user_languages && this.state.user_languages.includes(lang.lang_ide);
+    return this.props.languages.filter((lang) => {
+      return (
+        this.state.user_languages &&
+        this.state.user_languages.includes(lang.lang_ide)
+      );
     });
-  }
+  };
 
   formatLanguages = (languages) => {
-    return languages.map(language => {
+    return languages.map((language) => {
       return {
         id: language.lang_ide,
-        name: language.lang_description
-      }
+        name: language.lang_description,
+      };
     });
-  }
+  };
 
   render() {
     return (
       <Fragment>
         <Column>
-          <Card style={{width: "700px"}}>
+          <Card style={{ width: "700px" }}>
             <h1 className={styles.title}>Public information</h1>
             <Row style={{ alignItems: "start" }}>
               <ProfilePicture
@@ -168,9 +192,7 @@ class ProfilePageEdit extends Component {
                   type="text"
                   name="user_name"
                   label="Name and Lastname"
-                  value={[this.state.user_name, this.state.user_lastname].join(
-                    " "
-                  )}
+                  value={this.state.fullName}
                   onChange={this.handleNameChange}
                 />
                 <Input
@@ -245,16 +267,18 @@ class ProfilePageEdit extends Component {
   }
 }
 
-
 const mapStateToProps = (state) => ({
   user: state.userData.currentUser,
-  languages: state.languageData.languages
+  languages: state.languageData.languages,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  update: (user) => dispatch(userActions.updateProfile(user)),
+  update: (user, history) => dispatch(userActions.updateProfile(user, history)),
   getMyProfile: () => dispatch(userActions.getProfile()),
-  getLanguages: () => dispatch(languageActions.getAll())
+  getLanguages: () => dispatch(languageActions.getAll()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProfilePageEdit);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(ProfilePageEdit));

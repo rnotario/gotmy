@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { userActions } from "../../actions";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 
 import Card from "../../components/Card/Card";
 
@@ -13,32 +14,65 @@ import styles from "./RegistrationPage.module.css";
 class RegistrationPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      error: "",
+    };
   }
 
   handleInputChange = (ev) => {
     this.setState({
       [ev.target.name]: ev.target.value,
+      error: "",
     });
   };
 
   handleSubmit = (ev) => {
     ev.preventDefault();
+    this.validateFields();
 
+    if (!this.state.error) {
+      const { email, password, password2 } = this.state;
+      this.props.register({ email, password, password2 }, this.props.history);
+    }
+  };
+
+  validateFields = () => {
     const { email, password, password2 } = this.state;
-    this.props.register({ email, password, password2 });
+    let error;
+
+    if (
+      !email ||
+      !email.match(
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i
+      )
+    ) {
+      error = "You must enter a valid email";
+    } else if (!password) {
+      error = "You must enter a password";
+    } else if (password !== password2) {
+      error = "Passwords don't match";
+    }
+
+    if (error) {
+      this.setState({
+        error,
+      });
+    }
+  };
+
+  // Clientside message will have preference and will prevent from sending request to server
+  getErrorMessage = () => {
+    return (
+      this.state.error || (this.props.error && this.props.error[0].message)
+    );
   };
 
   render() {
     return (
-      <Card style={{width: "700px"}}>
+      <Card style={{ width: "700px" }}>
         <div className={styles.header}>
           <h1 className={styles.title}>Welcome to</h1>
-          <img
-            className={styles.logo}
-            src={logo}
-            alt="gotmy alternate logo"
-          />
+          <img className={styles.logo} src={logo} alt="gotmy alternate logo" />
         </div>
         <form className={styles.form} onSubmit={this.handleSubmit}>
           <div className={styles.formGroup}>
@@ -71,6 +105,7 @@ class RegistrationPage extends Component {
               placeholder="repeat password"
             />
           </div>
+          <div className={styles.error}>{this.getErrorMessage()}</div>
           <Button text="Continue" />
         </form>
       </Card>
@@ -78,9 +113,15 @@ class RegistrationPage extends Component {
   }
 }
 
-
-const mapDispatchToProps = (dispatch) => ({
-  register: (user) => dispatch(userActions.register(user)),
+const mapStateToProps = (state) => ({
+  error: state.userData.error,
 });
 
-export default connect(null, mapDispatchToProps)(RegistrationPage);
+const mapDispatchToProps = (dispatch) => ({
+  register: (user, history) => dispatch(userActions.register(user, history)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(RegistrationPage));

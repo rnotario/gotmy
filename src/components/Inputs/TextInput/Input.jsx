@@ -16,9 +16,14 @@ const Input = (props) => {
         value={props.value}
         onChange={props.onChange}
         placeholder={props.placeholder}
+        disabled={!props.editable}
       />
     </div>
   );
 };
+
+Input.defaultProps = {
+  editable: true
+}
 
 export default Input;

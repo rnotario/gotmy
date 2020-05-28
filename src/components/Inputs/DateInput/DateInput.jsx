@@ -30,6 +30,8 @@ const DateInput = (props) => {
           onChange={props.onChange}
           name={props.name}
           id={props.name}
+          disabled={!props.editable}
+          dateFormat="dd/MM/yyyy"
         />
         <div className={styles.calendar_icon}>
           <img
@@ -45,6 +47,7 @@ const DateInput = (props) => {
 
 DateInput.defaultProps = {
   value: new Date().valueOf(),
+  editable: true,
 };
 
 export default DateInput;
